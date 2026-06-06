@@ -48,7 +48,7 @@ A high-precision technical analysis matrix running natively on TradingView chart
 
 > 🔒 **Intellectual Property Notice:** The Pine Script code and strategy logic powering this generator represent proprietary Phoelix core intellectual property. **The codebase is strictly closed-source as of now**
 
-### 2. The Transaction Processor (`PhoelixReceiver.mq5`)
+### 2. The Transaction Processor (`PhoelixReceiverEA.mq5`)
 A native MetaTrader 5 Expert Advisor (EA) designed for continuous background data processing.
 * **String Parser Matrix:** Scans the incoming Telegram payload buffers, instantly separating operational commands (`SIGNAL_ENTRY`, `SIGNAL_EXIT`), direction configurations, and precise lot requirements.
 * **Pure Risk Armour:** Activates an advanced, continuous Break-Even Protection loop. The moment a position ticks to **+10 Pips** of net profit, the stop-loss is dynamically updated to lock entry plus a cushion metric to absorb raw spread friction and commission decay.
