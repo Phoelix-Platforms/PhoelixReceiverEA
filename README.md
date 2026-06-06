@@ -66,7 +66,7 @@ To maintain high security and proper operational health when loading the systems
    ```text
    [https://api.telegram.org](https://api.telegram.org)
 
-   ---
+---
 **Separate Reminder/Note:**
 4. On that same screen, ensure you check the box to **"Allow Algorithmic Trading"** and verify that the global **Algo Trading** button on your main MT5 top toolbar is toggled **ON** (turned green).
 
