@@ -1,7 +1,7 @@
 # Phoelix: Algorithmic Trading Bridge
 
 <p align="center">
-  <img src="./assets/Phoelix-Algo.png" alt="Phoelix Algo Img" width="auto" height="140" />
+  <img src="/assets/phoelix-Algo.png" alt="Phoelix Algo Img" width="auto" height="140" />
 </p>
 
 <p align="center">
