@@ -55,7 +55,6 @@ A native MetaTrader 5 Expert Advisor (EA) designed for continuous background dat
 * **Dynamic Suffix Translation:** Contains a custom routing matrix to normalize varied string values (like converting `GOLD` -> `XAUUSD`, or routing crude oil naming conventions directly to the Exness platform counterpart: `USOILm`).
 
 ---
-
 ## ⚙️ Setup & Operational Integrity
 
 To maintain high security and proper operational health when loading the systems onto your trading terminal or VPS:
@@ -63,6 +62,11 @@ To maintain high security and proper operational health when loading the systems
 ### MetaTrader 5 Environment Configurations
 1. Open MT5 Terminal, navigate to **Tools > Options > Expert Advisors**.
 2. Check the box to **"Allow WebRequest for listed URL:"**.
-3. Add the exact secure Telegram endpoint address: 
-```text
+3. Add the exact secure Telegram endpoint address:
+   ```text
    [https://api.telegram.org](https://api.telegram.org)
+
+   ---
+**Separate Reminder/Note:**
+4. On that same screen, ensure you check the box to **"Allow Algorithmic Trading"** and verify that the global **Algo Trading** button on your main MT5 top toolbar is toggled **ON** (turned green).
+
