@@ -64,9 +64,7 @@ To maintain high security and proper operational health when loading the systems
 2. Check the box to **"Allow WebRequest for listed URL:"**.
 3. Add the exact secure Telegram endpoint address:
    ```text
-   [https://api.telegram.org](https://api.telegram.org)
+   [https://api.telegram.org]
 
----
-**Separate Reminder/Note:**
-4. On that same screen, ensure you check the box to **"Allow Algorithmic Trading"** and verify that the global **Algo Trading** button on your main MT5 top toolbar is toggled **ON** (turned green).
+4. On that same screen, ensure to check the box to **"Allow Algorithmic Trading"** and verify that the global **Algo Trading** button on your main MT5 top toolbar is toggled **ON** (turned green).
 
