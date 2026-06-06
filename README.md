@@ -37,16 +37,16 @@ The framework completely avoids latency overhead by eliminating intermediary com
 
 ## 🗂️ Core Infrastructure Modules
 
-This repository houses the native MetaTrader 5 Expert Advisor transaction processor (PhoelixReceiver.mq5), designed for continuous background data processing and order execution:
+This repository houses the native MetaTrader 5 Expert Advisor transaction processor (PhoelixReceiverEA.mq5), designed for continuous background data processing and order execution:
 
 ### 1. The Alert Generator (`Phoelix_Sniper_Bot.pine`)
 A high-precision technical analysis matrix running natively on TradingView charts using Pine Script v6.
-* **Premium Intraday Softwares:** This represents one of our finest algorithmic trading engines, explicitly optimized for rapid intraday trading setups on the 15-minute timeframe.
+* **Premium Intraday Softwares:** One of our finest algorithmic trading engines, explicitly optimized for rapid intraday trading setups on the 15-minute timeframe.
 * **Dual-Filter Confirmation:** Merges an aggressive tracking engine ("Sniper Line") with a long-term direction matrix ("Anchor Line") to guarantee executions only occur with macro-trend alignment.
 * **Algorithmic Lot-Sizing Engine:** Automatically routes asset-specific volumes (`tv_gold_lot`, `tv_usoil_lot`) based on localized risk settings.
 * **New York Session Cutoff Guard:** Forces hard state exits exactly at the 15:45 NY session boundary to protect open capital from toxic market-close spreads and swap fees.
 
-> 🔒 **Intellectual Property Notice:** The Pine Script code and strategy logic powering this generator represent proprietary Phoelix core intellectual property. **The codebase is strictly closed-source as of now** and restricted entirely to administrative corporate use.
+> 🔒 **Intellectual Property Notice:** The Pine Script code and strategy logic powering this generator represent proprietary Phoelix core intellectual property. **The codebase is strictly closed-source as of now**
 
 ### 2. The Transaction Processor (`PhoelixReceiver.mq5`)
 A native MetaTrader 5 Expert Advisor (EA) designed for continuous background data processing.
@@ -61,7 +61,7 @@ A native MetaTrader 5 Expert Advisor (EA) designed for continuous background dat
 To maintain high security and proper operational health when loading the systems onto your trading terminal or VPS:
 
 ### MetaTrader 5 Environment Configurations
-1. Open your MT5 Terminal, navigate to **Tools > Options > Expert Advisors**.
+1. Open MT5 Terminal, navigate to **Tools > Options > Expert Advisors**.
 2. Check the box to **"Allow WebRequest for listed URL:"**.
 3. Add the exact secure Telegram endpoint address: 
 ```text
