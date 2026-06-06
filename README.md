@@ -1,4 +1,4 @@
-# Phoelix Sniper Engine: Algorithmic Trading Bridge
+# Phoelix: Algorithmic Trading Bridge
 
 <p align="center">
   <img src="https://avatars.githubusercontent.com/u/291123760?s=400&v=4" alt="Phoelix Logo" width="120" height="120" />
