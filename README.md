@@ -22,16 +22,16 @@ The **Phoelix Sniper Engine** is a proprietary, low-latency cross-platform trans
 
 The framework completely avoids latency overhead by eliminating intermediary commercial webhook-to-MT5 subscription apps. Instead, it utilizes a highly direct execution routing map:
 
-[ TradingView Engine ]
-│ (Pine Script v6 Algorithm running on a 15-Minute Cycle)
-▼
-[ Telegram API Pipeline ]
-│ (Asynchronous, secure string payloads passing structure state parameters)
-▼
-[ PhoelixReceiver (EA) ]
-│ (Native MQL5 WebRequest long-polling loop inside MetaTrader 5 terminal)
-▼
-[ Broker Execution Layer ] (Bespoke broker suffix translation matrix -> e.g., Exness USOILm)
+[ TradingView Engine ] <br>
+│ (Pine Script v6 Algorithm running on a 15-Minute Cycle) <br>
+▼ <br>
+[ Telegram API Pipeline ]<br>
+│ (Asynchronous, secure string payloads passing structure state parameters)<br>
+▼<br>
+[ PhoelixReceiver (EA) ]<br>
+│ (Native MQL5 WebRequest long-polling loop inside MetaTrader 5 terminal)<br>
+▼<br>
+[ Broker Execution Layer ] (Bespoke broker suffix translation matrix -> e.g., Exness USOILm)<br>
 
 ---
 
