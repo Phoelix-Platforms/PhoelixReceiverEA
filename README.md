@@ -37,7 +37,7 @@ The framework completely avoids latency overhead by eliminating intermediary com
 
 ## 🗂️ Core Infrastructure Modules
 
-The engine is divided into two decoupled processing environments housed within this repository:
+This repository houses the native MetaTrader 5 Expert Advisor transaction processor (PhoelixReceiver.mq5), designed for continuous background data processing and order execution:
 
 ### 1. The Alert Generator (`Phoelix_Sniper_Bot.pine`)
 A high-precision technical analysis matrix running natively on TradingView charts using Pine Script v6.
