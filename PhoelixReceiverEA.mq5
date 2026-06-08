@@ -1,24 +1,19 @@
 //+------------------------------------------------------------------+
-//|                                              PhoelixReceiverEA.mq5 |
-//|                                  Copyright 2026, Phoelix Platforms|
-//|                                             https://phoelix.com |
+//|                                              PhoelixReceiver.mq5 |
+//|                                  Copyright 2026, Phoelix Platforms Ltd|
+//|                                               https://phoelix.com |
 //+------------------------------------------------------------------+
-#property copyright "Copyright 2026, Phoelix Platforms"
+#property copyright "Copyright 2026, Phoelix Platforms Ltd"
 #property link      "https://phoelix.com"
-#property version   "0.01"
+#property version   "6.00"
 #property strict
 
 #include <Trade\Trade.mqh>
 
 //--- Input Parameters (HARDCODED USER CREDENTIALS)
-input string   InpBotToken         = ""; // Telegram Bot Token
-input string   InpChannelID        = ""; // Telegram Channel ID
+input string   InpBotToken         = "8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxc"; // Telegram Bot Token
+input string   InpChannelID        = "-100xxxxxxxxxxxxxxxxxxxxx";                                 // Telegram Channel ID
 input int      InpTimerSeconds     = 2;                                                // Telegram Poll Interval
-
-//--- Pure Risk Armour: Advanced 10-Pip Break-Even Shield Only
-input bool     InpUseBreakEven     = true;                    // Protect trade at Break-Even
-input int      InpBETriggerPips    = 10;                      // Lock entry at +10 pips profit
-input int      InpBECushionPips    = 2;                       // Covers commissions & raw spread friction
 
 //--- Global Objects & Variables
 CTrade         trade;
@@ -35,7 +30,7 @@ int OnInit()
    trade.SetExpertMagicNumber(MAGIC_NUMBER);
    
    EventSetTimer(InpTimerSeconds);
-   Print("🚀 Phoelix 10-Pip Shield Core Operational. Milestones Removed. Running Clean.");
+   Print("🚀 Phoelix Raw-Ride Engine Online. Pure execution mode armed.");
    return(INIT_SUCCEEDED);
 }
 
@@ -53,8 +48,6 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTimer()
 {
-   ManageSmartRiskProtections();
-
    string url = "https://api.telegram.org/bot" + InpBotToken + "/getUpdates?offset=" + IntegerToString(last_update_id + 1);
    string headers = "";
    char post[], result[];
@@ -96,7 +89,7 @@ void ParseTelegramJSON(string json)
 
 //+------------------------------------------------------------------+
 //| Process Parsed Signal Rules Safely                               |
-//+------------------------------------------------------------------+
+//+--------------------------------==================================+
 void ExecuteSignal(string message)
 {
    string segments[];
@@ -125,13 +118,13 @@ void ExecuteSignal(string message)
       if(direction == "BUY")
       {
          double price = SymbolInfoDouble(active_symbol, SYMBOL_ASK);
-         trade.Buy(parsed_lot, active_symbol, price, stop_loss, 0, "Phoelix Shield-Sniper");
+         trade.Buy(parsed_lot, active_symbol, price, stop_loss, 0, "Phoelix Raw-Sniper");
          Print("🎯 Remote TV Buy Executed: ", active_symbol, " Lots: ", parsed_lot);
       }
       else if(direction == "SELL")
       {
          double price = SymbolInfoDouble(active_symbol, SYMBOL_BID);
-         trade.Sell(parsed_lot, active_symbol, price, stop_loss, 0, "Phoelix Shield-Sniper");
+         trade.Sell(parsed_lot, active_symbol, price, stop_loss, 0, "Phoelix Raw-Sniper");
          Print("🎯 Remote TV Sell Executed: ", active_symbol, " Lots: ", parsed_lot);
       }
    }
@@ -139,63 +132,6 @@ void ExecuteSignal(string message)
    if(action == "SIGNAL_EXIT")
    {
       ClosePositions(active_symbol, direction);
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Isolated Break-Even Risk Protection Module                       |
-//+------------------------------------------------------------------+
-void ManageSmartRiskProtections()
-{
-   for(int i = PositionsTotal() - 1; i >= 0; i--)
-   {
-      if(PositionGetTicket(i) > 0)
-      {
-         string sym = PositionGetString(POSITION_SYMBOL);
-         if(PositionGetInteger(POSITION_MAGIC) == MAGIC_NUMBER)
-         {
-            double current_sl   = PositionGetDouble(POSITION_SL);
-            double open_price   = PositionGetDouble(POSITION_PRICE_OPEN);
-            long pos_type       = PositionGetInteger(POSITION_TYPE);
-            
-            double point        = SymbolInfoDouble(sym, SYMBOL_POINT);
-            double digits       = SymbolInfoInteger(sym, SYMBOL_DIGITS);
-            double pip_factor   = (digits == 3 || digits == 5) ? point * 10 : point;
-            
-            double be_cushion_dist = InpBECushionPips * pip_factor;
-            
-            if(pos_type == POSITION_TYPE_BUY)
-            {
-               double bid = SymbolInfoDouble(sym, SYMBOL_BID);
-               double current_profit_pips = (bid - open_price) / pip_factor;
-               
-               if(InpUseBreakEven && current_profit_pips >= InpBETriggerPips)
-               {
-                  double target_be = open_price + be_cushion_dist;
-                  if(current_sl < open_price)
-                  {
-                     trade.PositionModify(PositionGetTicket(i), NormalizeDouble(target_be, (int)digits), PositionGetDouble(POSITION_TP));
-                     Print("🛡️ Break-Even Protection Engaged for BUY on ", sym);
-                  }
-               }
-            }
-            else if(pos_type == POSITION_TYPE_SELL)
-            {
-               double ask = SymbolInfoDouble(sym, SYMBOL_ASK);
-               double current_profit_pips = (open_price - ask) / pip_factor;
-               
-               if(InpUseBreakEven && current_profit_pips >= InpBETriggerPips)
-               {
-                  double target_be = open_price - be_cushion_dist;
-                  if(current_sl > open_price || current_sl == 0.0)
-                  {
-                     trade.PositionModify(PositionGetTicket(i), NormalizeDouble(target_be, (int)digits), PositionGetDouble(POSITION_TP));
-                     Print("🛡️ Break-Even Protection Engaged for SELL on ", sym);
-                  }
-               }
-            }
-         }
-      }
    }
 }
 
@@ -237,7 +173,6 @@ string SymbolNormalize(string raw_symbol)
    if(cleaned == "GOLD")   return "XAUUSD";
    if(cleaned == "SILVER") return "XAGUSD";
    
-   // EXNESS SPECIFIC ROUTER: Map all TradingView variations of oil directly to Exness USOILm
    if(StringFind(cleaned, "USOIL") != -1 || StringFind(cleaned, "WTI") != -1 || StringFind(cleaned, "CRUDE") != -1) 
       return "USOILm";
 
