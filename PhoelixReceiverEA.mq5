@@ -11,8 +11,8 @@
 #include <Trade\Trade.mqh>
 
 //--- Input Parameters (HARDCODED USER CREDENTIALS)
-input string   InpBotToken         = "8929198079:AAE_P4WVy7NlZLtrytg3yfLSIdfy35xI2pc"; // Telegram Bot Token
-input string   InpChannelID        = "-1003912338001";                                 // Telegram Channel ID
+input string   InpBotToken         = "89xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxI2p"; // Telegram Bot Token
+input string   InpChannelID        = "-100xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx001";                                 // Telegram Channel ID
 input int      InpTimerSeconds     = 2;                                                // Telegram Poll Interval
 input double   SlPaddingPips       = 3.0;                                              // Safety Buffer (Pips)
 
