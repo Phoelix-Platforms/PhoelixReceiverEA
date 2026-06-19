@@ -1,19 +1,20 @@
 //+------------------------------------------------------------------+
 //|                                              PhoelixReceiver.mq5 |
 //|                                  Copyright 2026, Phoelix Platforms Ltd|
-//|                                               https://phoelix.com |
+//|                                              https://phoelix.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Phoelix Platforms Ltd"
 #property link      "https://phoelix.com"
-#property version   "6.00"
+#property version   "6.10"
 #property strict
 
 #include <Trade\Trade.mqh>
 
 //--- Input Parameters (HARDCODED USER CREDENTIALS)
-input string   InpBotToken         = "8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxc"; // Telegram Bot Token
-input string   InpChannelID        = "-100xxxxxxxxxxxxxxxxxxxxx";                                 // Telegram Channel ID
+input string   InpBotToken         = "8929198079:AAE_P4WVy7NlZLtrytg3yfLSIdfy35xI2pc"; // Telegram Bot Token
+input string   InpChannelID        = "-1003912338001";                                 // Telegram Channel ID
 input int      InpTimerSeconds     = 2;                                                // Telegram Poll Interval
+input double   SlPaddingPips       = 3.0;                                              // Safety Buffer (Pips)
 
 //--- Global Objects & Variables
 CTrade         trade;
@@ -30,7 +31,7 @@ int OnInit()
    trade.SetExpertMagicNumber(MAGIC_NUMBER);
    
    EventSetTimer(InpTimerSeconds);
-   Print("🚀 Phoelix Raw-Ride Engine Online. Pure execution mode armed.");
+   Print("🚀 Phoelix Raw-Ride Engine Online. Pure execution mode armed with Method 1 SL Padding.");
    return(INIT_SUCCEEDED);
 }
 
@@ -64,7 +65,7 @@ void OnTimer()
 }
 
 //+------------------------------------------------------------------+
-//| Parse JSON string from Telegram to identify signals             |
+//| Parse JSON string from Telegram to identify signals              |
 //+------------------------------------------------------------------+
 void ParseTelegramJSON(string json)
 {
@@ -89,7 +90,7 @@ void ParseTelegramJSON(string json)
 
 //+------------------------------------------------------------------+
 //| Process Parsed Signal Rules Safely                               |
-//+--------------------------------==================================+
+//+------------------------------------------------------------------+
 void ExecuteSignal(string message)
 {
    string segments[];
@@ -107,28 +108,44 @@ void ExecuteSignal(string message)
       SymbolSelect(active_symbol, true);
    }
 
+   // Handle Signal Entries
    if(action == "SIGNAL_ENTRY")
    {
       if(IsPositionOpen(active_symbol)) return; 
       
-      double stop_loss = (count >= 5) ? StringToDouble(StringTrim(segments[4])) : 0.0;
+      double raw_sl = (count >= 5) ? StringToDouble(StringTrim(segments[4])) : 0.0;
       double parsed_lot = (count >= 6) ? StringToDouble(StringTrim(segments[5])) : 0.01;
       if(parsed_lot <= 0) parsed_lot = 0.01; 
 
+      // --- METHOD 1: DYNAMIC SL PADDING CALCULATION SYSTEM ---
+      double price_delta = 0.0;
+      
+      if(StringFind(active_symbol, "JPY") != -1)           price_delta = SlPaddingPips * 0.01; 
+      else if(StringFind(active_symbol, "XAU") != -1 || active_symbol == "GOLD") price_delta = SlPaddingPips * 0.1; 
+      else if(StringFind(active_symbol, "XAG") != -1 || active_symbol == "SILVER" || StringFind(active_symbol, "OIL") != -1) price_delta = SlPaddingPips * 0.01;
+      else                                                 price_delta = SlPaddingPips * 0.0001; 
+
+      double padded_sl = raw_sl;
+
       if(direction == "BUY")
       {
+         if(raw_sl > 0.0) padded_sl = raw_sl - price_delta; // Push SL down for buys
+         
          double price = SymbolInfoDouble(active_symbol, SYMBOL_ASK);
-         trade.Buy(parsed_lot, active_symbol, price, stop_loss, 0, "Phoelix Raw-Sniper");
-         Print("🎯 Remote TV Buy Executed: ", active_symbol, " Lots: ", parsed_lot);
+         trade.Buy(parsed_lot, active_symbol, price, padded_sl, 0, "Phoelix Raw-Sniper");
+         Print("🎯 Remote TV Buy Executed: ", active_symbol, " Lots: ", parsed_lot, " | Raw SL: ", raw_sl, " | Padded SL: ", padded_sl);
       }
       else if(direction == "SELL")
       {
+         if(raw_sl > 0.0) padded_sl = raw_sl + price_delta; // Push SL up for sells
+         
          double price = SymbolInfoDouble(active_symbol, SYMBOL_BID);
-         trade.Sell(parsed_lot, active_symbol, price, stop_loss, 0, "Phoelix Raw-Sniper");
-         Print("🎯 Remote TV Sell Executed: ", active_symbol, " Lots: ", parsed_lot);
+         trade.Sell(parsed_lot, active_symbol, price, padded_sl, 0, "Phoelix Raw-Sniper");
+         Print("🎯 Remote TV Sell Executed: ", active_symbol, " Lots: ", parsed_lot, " | Raw SL: ", raw_sl, " | Padded SL: ", padded_sl);
       }
    }
    
+   // Handle Signal Exits (Gracefully skips if already hit SL via broker)
    if(action == "SIGNAL_EXIT")
    {
       ClosePositions(active_symbol, direction);
@@ -153,12 +170,23 @@ bool IsPositionOpen(string symbol)
 void ClosePositions(string symbol, string direction)
 {
    ENUM_POSITION_TYPE target_type = (direction == "LONG") ? POSITION_TYPE_BUY : POSITION_TYPE_SELL;
+   bool found = false;
+   
    for(int i = PositionsTotal() - 1; i >= 0; i--)
    {
       if(PositionGetSymbol(i) == symbol && PositionGetInteger(POSITION_MAGIC) == MAGIC_NUMBER)
       {
-         if(PositionGetInteger(POSITION_TYPE) == target_type) trade.PositionClose(PositionGetTicket(i));
+         if(PositionGetInteger(POSITION_TYPE) == target_type) 
+         {
+            trade.PositionClose(PositionGetTicket(i));
+            found = true;
+         }
       }
+   }
+   
+   if(!found)
+   {
+      Print("ℹ️ Phoelix Sync: Exit received for ", symbol, " (", direction, ") but no live positions were found. Guard skip passed successfully.");
    }
 }
 
@@ -170,11 +198,17 @@ string SymbolNormalize(string raw_symbol)
    string cleaned = raw_symbol;
    StringToUpper(cleaned);
    
-   if(cleaned == "GOLD")   return "XAUUSD";
-   if(cleaned == "SILVER") return "XAGUSD";
+   if(cleaned == "GOLD" || cleaned == "XAUUSD")   return "XAUUSDm";
+   if(cleaned == "SILVER" || cleaned == "XAGUSD") return "XAGUSDm";
    
    if(StringFind(cleaned, "USOIL") != -1 || StringFind(cleaned, "WTI") != -1 || StringFind(cleaned, "CRUDE") != -1) 
       return "USOILm";
+
+   // Match standard Exness 'm' suffixes for regular Forex pairs
+   if(StringLen(cleaned) == 6)
+   {
+      return cleaned + "m";
+   }
 
    return cleaned;
 }
